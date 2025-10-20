@@ -23,6 +23,6 @@ El sistema está diseñado para un entorno empresarial cerrado, con acceso segur
 - 🔐 **Autenticación:** LDAP o Active Directory
 - 💾 **Copias de seguridad automáticas:** Scripts Bash (cron)
 - 🧰 **Seguridad:** HTTPS, firewall UFW, permisos de acceso
-- ** Networking 
+- 🌐 **Networking** VPN and DNS
 **Esquema general:**
 
