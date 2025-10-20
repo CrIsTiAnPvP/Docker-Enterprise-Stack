@@ -1,0 +1,8 @@
+# Ignorar carpeta de Vagrant.
+./vagrant
+
+#Ignorar archivos temporales de iMac
+._*
+
+# Ignorar archivos de copia de seguridad.
+*~
