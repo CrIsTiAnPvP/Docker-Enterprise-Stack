@@ -11,18 +11,20 @@ El objetivo de este proyecto es crear una **plataforma web interna** que permita
 
 El sistema está diseñado para un entorno empresarial cerrado, con acceso seguro mediante autenticación LDAP/AD y conexión HTTPS.
 
+Todos los sistemas van a ser creados con **vagrant** y **ansible**
+
 ---
 
 ## 🧱 Arquitectura del sistema
 
 **Componentes principales:**
 
-- 🖥️ **Servidor Web:** Apache o Nginx (Linux)
-- 🗄️ **Base de Datos:** MySQL / MariaDB / PostgreSQL
-- 🧩 **Backend:** PHP / Flask / Django
-- 🔐 **Autenticación:** LDAP o Active Directory
+- 🖥️ **Servidor Web:** Nginx
+- 🗄️ **Base de Datos:** MySQL
+- 🧩 **Backend:** Flask
+- 🔐 **Autenticación:** LDAP
 - 💾 **Copias de seguridad automáticas:** Scripts Bash (cron)
-- 🧰 **Seguridad:** HTTPS, firewall UFW, permisos de acceso
-- 🌐 **Networking** VPN and DNS
+- 🧰 **Seguridad:** firewall, permisos de acceso
+- 🌐 **Networking** VPN, DNS, DHCP
 **Esquema general:**
 
