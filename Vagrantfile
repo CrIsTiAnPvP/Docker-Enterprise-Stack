@@ -9,7 +9,7 @@ Vagrant.configure("2") do |config|
   config.vm.define "router" do |rt|
     rt.vm.hostname = "router"
     rt.vm.network "private_network", ip: "192.168.33.1", virtualbox__intnet: "intnet"
-    rt.vm.network "public_network", ip: "10.112.69.1"
+    rt.vm.network "public_network", ip: "10.112.69.254",
     rt.vm.network "private_network", ip: "192.168.1.1"
   end
 
