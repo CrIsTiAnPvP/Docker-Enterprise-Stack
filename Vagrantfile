@@ -4,12 +4,12 @@
 Vagrant.configure("2") do |config|
   config.vm.box = "ubuntu/xenial64"
   config.ssh.forward_agent = true
-  config.ssh.private_key_path = "~/.ssh/id_ed2251"
+  config.ssh.private_key_path = ".ssh/id_ed2251"
   
   config.vm.define "router" do |rt|
     rt.vm.hostname = "router"
     rt.vm.network "private_network", ip: "192.168.33.1", virtualbox__intnet: "intnet"
-    rt.vm.network "public_network"
+    rt.vm.network "public_network", ip: "10.112.69.1"
     rt.vm.network "private_network", ip: "192.168.1.1"
   end
 
