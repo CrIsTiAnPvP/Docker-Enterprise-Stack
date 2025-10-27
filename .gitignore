@@ -6,3 +6,6 @@
 
 # Ignorar archivos de copia de seguridad.
 *~
+
+.vscode/*
+.ansible/*
