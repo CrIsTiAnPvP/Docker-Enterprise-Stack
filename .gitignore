@@ -9,3 +9,6 @@
 
 .vscode/*
 .ansible/*
+
+# Ignorar archivos de log.
+*.log
