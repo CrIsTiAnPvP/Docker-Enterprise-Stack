@@ -1,0 +1,40 @@
+# Unidad organizativa principal
+dn: dc=proyecto,dc=local
+objectClass: top
+objectClass: dcObject
+objectClass: organization
+o: Proyecto ASIR
+dc: proyecto
+
+# Unidad organizativa para usuarios
+dn: ou=people,dc=proyecto,dc=local
+objectClass: organizationalUnit
+ou: people
+
+# Unidad organizativa para grupos
+dn: ou=groups,dc=proyecto,dc=local
+objectClass: organizationalUnit
+ou: groups
+
+# Grupo de administradores
+dn: cn=admins,ou=groups,dc=proyecto,dc=local
+objectClass: groupOfNames
+cn: admins
+description: Administradores del sistema
+member: cn=admin,dc=proyecto,dc=local
+
+# Usuario administrador
+dn: cn=admin,ou=people,dc=proyecto,dc=local
+objectClass: inetOrgPerson
+objectClass: posixAccount
+objectClass: shadowAccount
+cn: admin
+sn: Admin
+givenName: System
+uid: admin
+uidNumber: 1000
+gidNumber: 100
+homeDirectory: /home/admin
+loginShell: /bin/bash
+userPassword: proyecto123
+mail: admin@proyecto.local
