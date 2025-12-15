@@ -1,12 +1,9 @@
 #!/bin/bash
-
 # Parar servicio
 sudo systemctl stop slapd
-
 # Eliminar configuración existente
 sudo rm -rf /var/lib/ldap/*
 sudo rm -rf /etc/ldap/slapd.d/*
-
 # Crear configuración mínima
 sudo slapadd -n 0 -l - <<EOF
 dn: cn=config
@@ -35,11 +32,9 @@ olcRootDN: cn=admin,dc=proyecto,dc=local
 olcRootPW: proyecto123
 olcDbIndex: objectClass eq
 EOF
-
 # Asignar permisos
 sudo chown -R openldap:openldap /var/lib/ldap
 sudo chown -R openldap:openldap /etc/ldap/slapd.d
-
 # Iniciar servicio
 sudo systemctl start slapd
 sudo systemctl enable slapd

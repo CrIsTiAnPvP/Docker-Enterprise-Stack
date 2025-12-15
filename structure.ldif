@@ -38,3 +38,4 @@ homeDirectory: /home/admin
 loginShell: /bin/bash
 userPassword: proyecto123
 mail: admin@proyecto.local
+#
