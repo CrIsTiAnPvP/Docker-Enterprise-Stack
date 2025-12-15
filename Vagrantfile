@@ -8,26 +8,33 @@ Vagrant.configure('2') do |config|
 
   config.vm.define "router" do |rt|
     rt.vm.hostname = "router"
-
-    rt.vm.network "private_network", ip: "192.168.56.1", virtualbox__intnet: "intnet"
-    rt.vm.network "private_network", ip: "10.112.69.1"
+    
+    # Rete 56.x: Conecta a DB, WEB, LDAP
+    rt.vm.network "private_network", ip: "192.168.56.1", virtualbox__intnet: "intnet_56"
+    
+    # Rete 1.x: Conecta a DB, WEB, LDAP
+    rt.vm.network "private_network", ip: "192.168.1.1", virtualbox__intnet: "intnet_1"
+    
+    # Interfaz hacia la red pública (host-only)
+    rt.vm.network "public_network", ip: "192.168.69.254" 
   end
 
   config.vm.define "db" do |db|
     db.vm.hostname = "db"
-    db.vm.network "private_network", ip: "192.168.56.2", virtualbox__intnet: "intnet"
-    db.vm.network "private_network", ip: "192.168.1.2"
+    # Aseguramos la conexión con el router en ambas redes
+    db.vm.network "private_network", ip: "192.168.56.2", virtualbox__intnet: "intnet_56"
+    db.vm.network "private_network", ip: "192.168.1.2", virtualbox__intnet: "intnet_1"
   end
 
   config.vm.define "web" do |web|
     web.vm.hostname = "web"
-    web.vm.network "private_network", ip: "192.168.56.3", virtualbox__intnet: "intnet"
-    web.vm.network "private_network", ip: "192.168.1.3"
+    web.vm.network "private_network", ip: "192.168.56.3", virtualbox__intnet: "intnet_56"
+    web.vm.network "private_network", ip: "192.168.1.3", virtualbox__intnet: "intnet_1"
   end
 
   config.vm.define "ldap" do |ldap|
     ldap.vm.hostname = "ldap"
-    ldap.vm.network "private_network", ip: "192.168.56.4", virtualbox__intnet: "intnet"
-    ldap.vm.network "private_network", ip: "192.168.1.4"
+    ldap.vm.network "private_network", ip: "192.168.56.4", virtualbox__intnet: "intnet_56"
+    ldap.vm.network "private_network", ip: "192.168.1.4", virtualbox__intnet: "intnet_1"
   end
 end
