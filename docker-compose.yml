@@ -1,0 +1,27 @@
+name: Management-Web
+
+services:
+  openldap:
+    image: osixia/openldap:latest
+    container_name: ldap-server
+    expose:
+      - 389
+    environment:
+      - LDAP_ORGANISATION=Internal SL
+      - LDAP_DOMAIN=internal.srv
+      - LDAP_ADMIN_PASSWORD=admnpasswd
+    volumes:
+      - ./data/ldap:/var/lib/ldap
+      - ./conf/ldap:/etc/ldap/slapd.d
+
+  phpldapadmin:
+    image: osixia/phpldapadmin:latest
+    container_name: ldap-admin
+    ports:
+      - "8080:80"
+    environment:
+      - PHPLDAPADMIN_LDAP_HOSTS=openldap
+      - PHPLDAPADMIN_HTTPS=false
+      - PHPLDAPADMIN_SERVER_NAME=Internal LDAP
+    depends_on:
+      - openldap
