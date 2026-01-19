@@ -1,27 +1,120 @@
 name: Management-Web
 
 services:
+
+  dns:
+    image: ubuntu/bind9:latest
+    container_name: dns
+    environment:
+      - TZ=Europe/Madrid
+    volumes:
+      - ./conf/bind9/named.conf.options:/etc/bind/named.conf.options
+      - ./conf/bind9/named.conf.local:/etc/bind/named.conf.local
+      - ./conf/bind9/db.insrv5.net:/etc/bind/db.insrv5.net
+      - ./conf/bind9/db.insrv5.local:/etc/bind/db.insrv5.local
+      - ./data/log/dns:/var/log/bind9
+    networks:
+      insrv_net:
+        ipv4_address: 192.168.5.253
+
   openldap:
     image: osixia/openldap:latest
     container_name: ldap-server
+    command: --copy-service
     expose:
       - 389
+      - 636
     environment:
       - LDAP_ORGANISATION=Internal SL
-      - LDAP_DOMAIN=internal.srv
+      - LDAP_DOMAIN=insrv5.local
       - LDAP_ADMIN_PASSWORD=admnpasswd
+      # --- LDAP Secure (SSL/TLS)---
+      - LDAP_TLS=true
+      - LDAP_TLS_VERIFY_CLIENT=try
+      - LDAP_TLS_CRT_FILENAME=insrv5.net.crt
+      - LDAP_TLS_KEY_FILENAME=insrv5.net.key
+      - LDAP_TLS_CA_CRT_FILENAME=insrv5.net.crt
     volumes:
       - ./data/ldap:/var/lib/ldap
       - ./conf/ldap:/etc/ldap/slapd.d
+      - ./conf/ssl/certs:/container/service/slapd/assets/certs/
+    depends_on:
+      - dns
+    dns:
+      - 192.168.5.253
+    networks:
+      insrv_net:
+        ipv4_address: 192.168.5.252
 
   phpldapadmin:
     image: osixia/phpldapadmin:latest
     container_name: ldap-admin
-    ports:
-      - "8080:80"
     environment:
       - PHPLDAPADMIN_LDAP_HOSTS=openldap
       - PHPLDAPADMIN_HTTPS=false
       - PHPLDAPADMIN_SERVER_NAME=Internal LDAP
     depends_on:
       - openldap
+    networks:
+      insrv_net:
+        ipv4_address: 192.168.5.4
+
+
+  db:
+    image: mysql:latest
+    container_name: db
+    environment:
+      - MYSQL_ROOT_PASSWORD=root
+      - MYSQL_DATABASE=insrv5_db
+      - MYSQL_USER=user
+      - MYSQL_PASSWORD=1234
+    volumes:
+      - ./data/db:/var/lib/mysql
+      - ./data/log/mysql:/var/log/mysql
+    networks:
+      insrv_net:
+        ipv4_address: 192.168.5.250
+    
+  phpmyadmin:
+    image: phpmyadmin
+    container_name: phpmyadmin
+    environment:
+      - PMA_HOST=db
+      - PMA_USER=user
+      - PMA_PASSWORD=1234
+    depends_on:
+      - db
+    networks:
+      insrv_net:
+        ipv4_address: 192.168.5.3
+    
+  nginx:
+    image: nginx:latest
+    container_name: nginx
+    volumes:
+      - ./conf/insrv5.net.conf:/etc/nginx/conf.d/default.conf
+      - ./conf/ssl/certs/insrv5.net.crt:/etc/ssl/certs/insrv5.net.crt
+      - ./conf/ssl/certs/insrv5.net.key:/etc/ssl/certs/insrv5.net.key
+      - ./data/log/nginx:/var/log/nginx
+    networks:
+      insrv_net:
+        ipv4_address: 192.168.5.10
+    depends_on:
+      - dns
+
+  apache:
+    image: httpd:latest
+    container_name: apache
+    volumes:
+      - ./conf/apache/www:/usr/local/apache2/htdocs/
+      - ./data/log/apache:/usr/local/apache2/logs/
+    networks:
+      insrv_net:
+        ipv4_address: 192.168.5.2
+
+networks:
+  insrv_net:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 192.168.5.0/24

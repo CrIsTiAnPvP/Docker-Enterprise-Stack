@@ -1,0 +1,13 @@
+$TTL    604800
+@       IN      SOA     ns.insrv5.net. admin.insrv5.net. (
+                              2         ; Serial
+                         604800         ; Refresh
+                          86400         ; Retry
+                        2419200         ; Expire
+                         604800 )       ; Negative Cache TTL
+;
+@       IN      NS      ns.insrv.net.
+ns      IN      A       192.168.5.253
+@       IN      A       192.168.5.10
+vpn     IN      A       192.168.5.249
+www     IN      CNAME   @

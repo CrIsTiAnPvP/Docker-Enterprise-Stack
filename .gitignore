@@ -11,3 +11,6 @@
 
 # Ignorar archivos de log.
 *.log
+
+# Ignorar archivos de los contenedores Docker.
+data/

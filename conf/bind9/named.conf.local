@@ -1,0 +1,9 @@
+zone "insrv5.net" {
+    type master;
+    file "/etc/bind/db.insrv5.net";
+};
+
+zone "insrv5.local" {
+    type master;
+    file "/etc/bind/db.insrv5.local";
+};
