@@ -1,15 +1,22 @@
 $TTL    604800
-@       IN      SOA     ns1.insrv5.local. admin.insrv5.local. (
+@       IN      SOA     ns.insrv5.local. admin.insrv5.local. (
                               2         ; Serial
                          604800         ; Refresh
                           86400         ; Retry
                         2419200         ; Expire
                          604800 )       ; Negative Cache TTL
 ;
-@       IN      NS      ns1.insrv5.local.
-@       IN      A       192.168.5.1     
+@       IN      NS      ns.insrv5.local.
+@       IN      A       192.168.51.1     
 
-ns      IN      A       192.168.5.253     
-ldap    IN      A       192.168.5.4
-backup	IN		  A		    192.168.5.251         
-db 		  IN      A       192.168.5.3   
+; Infraestructura
+ns      IN      A       192.168.51.253     
+backup	IN		  A		    192.168.51.251         
+
+; Servidores
+openldap  IN    A       192.168.51.252
+mysql   IN      A       192.168.51.250
+
+; Paneles Internos
+pma 		  IN      A       192.168.51.3  
+ldapadmin IN      A       192.168.51.4

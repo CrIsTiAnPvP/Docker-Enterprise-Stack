@@ -12,18 +12,17 @@ services:
       - ./conf/bind9/named.conf.local:/etc/bind/named.conf.local
       - ./conf/bind9/db.insrv5.net:/etc/bind/db.insrv5.net
       - ./conf/bind9/db.insrv5.local:/etc/bind/db.insrv5.local
-      - ./data/log/dns:/var/log/bind9
+      - ./log/dns:/var/log/bind9
     networks:
       insrv_net:
         ipv4_address: 192.168.5.253
+      insrv_local:
+        ipv4_address: 192.168.51.253
 
   openldap:
     image: osixia/openldap:latest
     container_name: ldap-server
     command: --copy-service
-    expose:
-      - 389
-      - 636
     environment:
       - LDAP_ORGANISATION=Internal SL
       - LDAP_DOMAIN=insrv5.local
@@ -35,16 +34,16 @@ services:
       - LDAP_TLS_KEY_FILENAME=insrv5.net.key
       - LDAP_TLS_CA_CRT_FILENAME=insrv5.net.crt
     volumes:
-      - ./data/ldap:/var/lib/ldap
+      - ldap_data:/var/lib/ldap
       - ./conf/ldap:/etc/ldap/slapd.d
       - ./conf/ssl/certs:/container/service/slapd/assets/certs/
     depends_on:
       - dns
     dns:
-      - 192.168.5.253
+      - 192.168.51.253
     networks:
-      insrv_net:
-        ipv4_address: 192.168.5.252
+      insrv_local:
+        ipv4_address: 192.168.51.252
 
   phpldapadmin:
     image: osixia/phpldapadmin:latest
@@ -52,65 +51,68 @@ services:
     environment:
       - PHPLDAPADMIN_LDAP_HOSTS=openldap
       - PHPLDAPADMIN_HTTPS=false
-      - PHPLDAPADMIN_SERVER_NAME=Internal LDAP
+      - PHPLDAPADMIN_SERVER_NAME=Internal5 LDAP
     depends_on:
       - openldap
     networks:
-      insrv_net:
-        ipv4_address: 192.168.5.4
-
+      insrv_local:
+        ipv4_address: 192.168.51.4
 
   db:
     image: mysql:latest
     container_name: db
     environment:
-      - MYSQL_ROOT_PASSWORD=root
-      - MYSQL_DATABASE=insrv5_db
-      - MYSQL_USER=user
-      - MYSQL_PASSWORD=1234
+      - MYSQL_ROOT_PASSWORD=root # Esto en prod. debería ir en un .env
+      - MYSQL_DATABASE=insrv5_db # Esto en prod. debería ir en un .env
+      - MYSQL_USER=user # Esto en prod. debería ir en un .env
+      - MYSQL_PASSWORD=1234 # Esto en prod. debería ir en un .env
     volumes:
-      - ./data/db:/var/lib/mysql
-      - ./data/log/mysql:/var/log/mysql
+      - db_data:/var/lib/mysql
+      - ./log/mysql:/var/log/mysql
     networks:
-      insrv_net:
-        ipv4_address: 192.168.5.250
+      insrv_local:
+        ipv4_address: 192.168.51.250
     
   phpmyadmin:
     image: phpmyadmin
     container_name: phpmyadmin
     environment:
       - PMA_HOST=db
-      - PMA_USER=user
-      - PMA_PASSWORD=1234
+      - PMA_USER=user # Esto en prod. debería ir en un .env
+      - PMA_PASSWORD=1234 # Esto en prod. debería ir en un .env
     depends_on:
       - db
     networks:
-      insrv_net:
-        ipv4_address: 192.168.5.3
+      insrv_local:
+        ipv4_address: 192.168.51.3
     
   nginx:
     image: nginx:latest
     container_name: nginx
     volumes:
-      - ./conf/insrv5.net.conf:/etc/nginx/conf.d/default.conf
+      - ./conf/nginx/insrv5.net.conf:/etc/nginx/conf.d/default.conf
       - ./conf/ssl/certs/insrv5.net.crt:/etc/ssl/certs/insrv5.net.crt
       - ./conf/ssl/certs/insrv5.net.key:/etc/ssl/certs/insrv5.net.key
-      - ./data/log/nginx:/var/log/nginx
+      - ./log/nginx:/var/log/nginx
     networks:
       insrv_net:
         ipv4_address: 192.168.5.10
-    depends_on:
-      - dns
-
+        
   apache:
-    image: httpd:latest
+    image: php:8.2-apache
     container_name: apache
     volumes:
-      - ./conf/apache/www:/usr/local/apache2/htdocs/
-      - ./data/log/apache:/usr/local/apache2/logs/
+      - ./conf/www:/var/www/html/
+      - ./log/apache:/var/log/apache2
     networks:
       insrv_net:
         ipv4_address: 192.168.5.2
+      insrv_local:
+        ipv4_address: 192.168.51.2
+
+volumes:
+  db_data:
+  ldap_data:
 
 networks:
   insrv_net:
@@ -118,3 +120,8 @@ networks:
     ipam:
       config:
         - subnet: 192.168.5.0/24
+  insrv_local:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 192.168.51.0/24

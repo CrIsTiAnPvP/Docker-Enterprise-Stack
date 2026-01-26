@@ -6,7 +6,7 @@ $TTL    604800
                         2419200         ; Expire
                          604800 )       ; Negative Cache TTL
 ;
-@       IN      NS      ns.insrv.net.
+@       IN      NS      ns.insrv5.net.
 ns      IN      A       192.168.5.253
 @       IN      A       192.168.5.10
 vpn     IN      A       192.168.5.249
