@@ -35,7 +35,6 @@ services:
       - LDAP_TLS_CA_CRT_FILENAME=insrv5.net.crt
     volumes:
       - ldap_data:/var/lib/ldap
-      - ./conf/ldap:/etc/ldap/slapd.d
       - ./conf/ssl/certs:/container/service/slapd/assets/certs/
     depends_on:
       - dns
@@ -99,7 +98,8 @@ services:
         ipv4_address: 192.168.5.10
         
   apache:
-    image: php:8.2-apache
+    build:
+      context: ./Docker/apache
     container_name: apache
     volumes:
       - ./conf/www:/var/www/html/
