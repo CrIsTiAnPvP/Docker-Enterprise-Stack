@@ -7,7 +7,7 @@ $TTL    604800
                          604800 )       ; Negative Cache TTL
 ;
 @       IN      NS      ns.insrv5.local.
-@       IN      A       192.168.51.1     
+@       IN      A       192.168.51.100     
 
 ; Infraestructura
 ns      IN      A       192.168.51.253     
@@ -20,3 +20,9 @@ mysql   IN      A       192.168.51.250
 ; Paneles Internos
 pma 		  IN      A       192.168.51.3  
 ldapadmin IN      A       192.168.51.4
+
+; Correo interno
+@       IN      MX      10 mail.insrv5.local.
+mail    IN      A       192.168.51.25
+imap    IN      A       192.168.51.25
+pop3    IN      A       192.168.51.25

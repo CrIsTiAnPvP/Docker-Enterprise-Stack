@@ -1,0 +1,5 @@
+CREATE DATABASE IF NOT EXISTS redmine_db;
+
+GRANT ALL PRIVILEGES ON redmine_db.* TO 'user'@'%';
+
+FLUSH PRIVILEGES;

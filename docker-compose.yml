@@ -30,12 +30,13 @@ services:
       # --- LDAP Secure (SSL/TLS)---
       - LDAP_TLS=true
       - LDAP_TLS_VERIFY_CLIENT=try
-      - LDAP_TLS_CRT_FILENAME=insrv5.net.crt
-      - LDAP_TLS_KEY_FILENAME=insrv5.net.key
-      - LDAP_TLS_CA_CRT_FILENAME=insrv5.net.crt
+      - LDAP_TLS_CRT_FILENAME=insrv5.local.crt
+      - LDAP_TLS_KEY_FILENAME=insrv5.local.key
+      - LDAP_TLS_CA_CRT_FILENAME=insrv5.local.crt
     volumes:
       - ldap_data:/var/lib/ldap
       - ./conf/ssl/certs:/container/service/slapd/assets/certs/
+      - ./conf/ldap/init.ldif:/container/service/slapd/assets/config/bootstrap/ldif/custom/init.ldif
     depends_on:
       - dns
     dns:
@@ -68,6 +69,7 @@ services:
     volumes:
       - db_data:/var/lib/mysql
       - ./log/mysql:/var/log/mysql
+      - ./conf/mysql/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
     networks:
       insrv_local:
         ipv4_address: 192.168.51.250
@@ -89,13 +91,14 @@ services:
     image: nginx:latest
     container_name: nginx
     volumes:
-      - ./conf/nginx/insrv5.net.conf:/etc/nginx/conf.d/default.conf
-      - ./conf/ssl/certs/insrv5.net.crt:/etc/ssl/certs/insrv5.net.crt
-      - ./conf/ssl/certs/insrv5.net.key:/etc/ssl/certs/insrv5.net.key
+      - ./conf/nginx:/etc/nginx/conf.d:ro
+      - ./conf/ssl/certs:/etc/ssl/certs:ro
       - ./log/nginx:/var/log/nginx
     networks:
       insrv_net:
         ipv4_address: 192.168.5.10
+      insrv_local:
+        ipv4_address: 192.168.51.100
         
   apache:
     build:
@@ -109,6 +112,76 @@ services:
         ipv4_address: 192.168.5.2
       insrv_local:
         ipv4_address: 192.168.51.2
+    depends_on:
+      - db
+      - openldap
+
+# INTEGRACIÓN MailServer (docker-mailserver)
+
+  mailserver:
+    image: mailserver/docker-mailserver:latest
+    container_name: mailserver
+    hostname: mail.insrv5.local
+    ports:
+      - "25:25"
+      - "143:143"
+      - "587:587"
+      - "993:993"
+    volumes:
+      - ./mail/mail-data:/var/mail
+      - ./mail/mail-state:/var/mail-state
+      - ./mail/mail-logs:/var/log/mail
+      - ./mail/config:/tmp/docker-mailserver
+      - /etc/localtime:/etc/localtime:ro
+      - ./conf/ssl/certs:/etc/ssl/custom:ro
+    environment:
+      - ENABLE_SPAMASSASSIN=0
+      - ENABLE_CLAMAV=0
+      - ENABLE_FAIL2BAN=0
+      - ENABLE_POSTGREY=0
+      - ONE_DIR=1
+      - DOMAINNAME=insrv5.local
+      # --- INTEGRACIÓN CON LDAP ---
+      - ACCOUNT_PROVISIONER=LDAP
+      - LDAP_SERVER_HOST=192.168.51.252
+      - LDAP_SEARCH_BASE=ou=usuarios,dc=insrv5,dc=local
+      - LDAP_BIND_DN=cn=admin,dc=insrv5,dc=local
+      - LDAP_BIND_PW=admnpasswd
+      - LDAP_QUERY_FILTER_USER=(&(objectClass=inetOrgPerson)(mail=%s))
+      # --- Configuración SSL/TLS ---
+      - SSL_TYPE=manual
+      - SSL_CERT_PATH=/etc/ssl/custom/insrv5.local.crt
+      - SSL_KEY_PATH=/etc/ssl/custom/insrv5.local.key
+    networks:
+      insrv_local:
+        ipv4_address: 192.168.51.25
+    dns:
+      - 192.168.51.253
+    depends_on:
+      - dns
+      - openldap
+
+  # Redmine
+  # INTEGRACIÓN REDMINE (Gestor de Tareas y Control de Horas)
+  redmine:
+    image: redmine:latest
+    container_name: redmine
+    hostname: tareas.insrv5.local
+    environment:
+      - REDMINE_DB_MYSQL=db
+      - REDMINE_DB_DATABASE=redmine_db
+      - REDMINE_DB_USERNAME=user
+      - REDMINE_DB_PASSWORD=1234
+    volumes:
+      - ./redmine/files:/usr/src/redmine/files
+    networks:
+      insrv_local:
+        ipv4_address: 192.168.51.10
+    dns:
+      - 192.168.51.253
+    depends_on:
+      - db
+      - openldap
 
 volumes:
   db_data:

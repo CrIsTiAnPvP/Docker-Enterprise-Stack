@@ -1,0 +1,105 @@
+# --- 1. Crear Unidades Organizativas (OUs) ---
+dn: ou=usuarios,dc=insrv5,dc=local
+objectClass: organizationalUnit
+ou: usuarios
+
+dn: ou=grupos,dc=insrv5,dc=local
+objectClass: organizationalUnit
+ou: grupos
+
+# --- 2. Crear Usuarios ---
+# Usuario: Administrador del sistema (IT) - Cristian Alonso
+dn: uid=calonso,ou=usuarios,dc=insrv5,dc=local
+objectClass: inetOrgPerson
+objectClass: posixAccount
+objectClass: top
+uid: calonso
+cn: Cristian Alonso
+sn: Alonso
+mail: calonso@insrv5.local
+userPassword: password123
+uidNumber: 1000
+gidNumber: 1000
+homeDirectory: /home/calonso
+
+# Usuario: Trabajador Normal (Juan Pérez)
+dn: uid=jperez,ou=usuarios,dc=insrv5,dc=local
+objectClass: inetOrgPerson
+objectClass: posixAccount
+objectClass: top
+uid: jperez
+cn: Juan Pérez
+sn: Pérez
+mail: jperez@insrv5.local
+userPassword: password123
+uidNumber: 1001
+gidNumber: 1001
+homeDirectory: /home/jperez
+
+# Usuario: Recursos Humanos (Laura López)
+dn: uid=llopez,ou=usuarios,dc=insrv5,dc=local
+objectClass: inetOrgPerson
+objectClass: posixAccount
+objectClass: top
+uid: llopez
+cn: Laura López
+sn: López
+mail: llopez@insrv5.local
+userPassword: password123
+uidNumber: 1002
+gidNumber: 1002
+homeDirectory: /home/llopez
+
+# Usuario: Administración (Carlos Gómez)
+dn: uid=cgomez,ou=usuarios,dc=insrv5,dc=local
+objectClass: inetOrgPerson
+objectClass: posixAccount
+objectClass: top
+uid: cgomez
+cn: Carlos Gómez
+sn: Gómez
+mail: cgomez@insrv5.local
+userPassword: password123
+uidNumber: 1003
+gidNumber: 1003
+homeDirectory: /home/cgomez
+
+# Usuario: Marketing (María García)
+dn: uid=mgarcia,ou=usuarios,dc=insrv5,dc=local
+objectClass: inetOrgPerson
+objectClass: posixAccount
+objectClass: top
+uid: mgarcia
+cn: María García
+sn: García
+mail: mgarcia@insrv5.local
+userPassword: password123
+uidNumber: 1004
+gidNumber: 1004
+homeDirectory: /home/mgarcia
+
+# --- 3. Crear Grupos y Asignar Usuarios (Un usuario, un grupo) ---
+dn: cn=Administracion,ou=grupos,dc=insrv5,dc=local
+objectClass: groupOfNames
+cn: Administracion
+member: uid=cgomez,ou=usuarios,dc=insrv5,dc=local
+
+dn: cn=Marketing,ou=grupos,dc=insrv5,dc=local
+objectClass: groupOfNames
+cn: Marketing
+member: uid=mgarcia,ou=usuarios,dc=insrv5,dc=local
+
+dn: cn=Trabajadores,ou=grupos,dc=insrv5,dc=local
+objectClass: groupOfNames
+cn: Trabajadores
+member: uid=jperez,ou=usuarios,dc=insrv5,dc=local
+
+dn: cn=Recursos Humanos,ou=grupos,dc=insrv5,dc=local
+objectClass: groupOfNames
+cn: Recursos Humanos
+member: uid=llopez,ou=usuarios,dc=insrv5,dc=local
+
+dn: cn=IT,ou=grupos,dc=insrv5,dc=local
+objectClass: groupOfNames
+cn: IT
+member: uid=calonso,ou=usuarios,dc=insrv5,dc=local
