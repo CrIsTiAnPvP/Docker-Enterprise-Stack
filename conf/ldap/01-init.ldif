@@ -78,6 +78,15 @@ uidNumber: 1004
 gidNumber: 1004
 homeDirectory: /home/mgarcia
 
+# --- CUENTA DE SERVICIO PARA LA APLICACIÓN WEB ---
+dn: uid=visor-usuarios,ou=usuarios,dc=insrv5,dc=local
+objectClass: inetOrgPerson
+objectClass: top
+cn: Visor Usuarios
+sn: Sistema
+uid: visor-usuarios
+userPassword: visorpwd
+
 # --- 3. Crear Grupos y Asignar Usuarios (Un usuario, un grupo) ---
 dn: cn=Administracion,ou=grupos,dc=insrv5,dc=local
 objectClass: groupOfNames

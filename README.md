@@ -2,7 +2,7 @@
 
 Proyecto de 2º de ASIR para simular una infraestructura TI empresarial completa utilizando contenedores Docker. El objetivo es desplegar, gestionar y securizar servicios de red, autenticación, bases de datos y aplicaciones internas.
 
-**Estado del proyecto:** ⚠️ **En desarrollo.** La estructura base está implementada, pero la integración completa de servicios y la configuración de seguridad avanzada (como la VPN) están en proceso.
+**Estado del proyecto:** ✅ **Funcional con Autenticación Centralizada.** La arquitectura de red, el portal de empleados con SSO/RBAC y los servicios principales están implementados. Próximos pasos incluyen la integración de VPN y sistemas de monitorización.
 
 ---
 
@@ -12,9 +12,10 @@ Este proyecto replica un entorno corporativo mediante la orquestación de múlti
 
 El sistema incluye:
 
-- **Servicios web públicos y privados** con Nginx como reverse proxy.
-- **Autenticación centralizada** con OpenLDAP para usuarios y grupos.
-- **Bases de datos** para aplicaciones internas como Redmine.
+- **Portal de Empleados** con autenticación centralizada (OpenLDAP), Single Sign-On (SSO) y dashboard dinámico.
+- **Servicios web públicos y privados** con Nginx como reverse proxy y gateway de autenticación.
+- **Control de Acceso Basado en Roles (RBAC)** para proteger aplicaciones internas como Redmine o phpMyAdmin.
+- **Bases de datos** para aplicaciones internas (MySQL).
 - **Herramientas de gestión web** para LDAP y MySQL (phpLDAPadmin, phpMyAdmin).
 - **Servidor de correo** integrado con LDAP.
 - **Sistema de gestión de proyectos** (Redmine).
@@ -28,30 +29,28 @@ La infraestructura se divide en dos redes aisladas para mejorar la seguridad:
 
 | Red           | Subred            | Propósito                                       |
 |---------------|-------------------|-------------------------------------------------|
-| `insrv_net`   | `192.168.5.0/24`  | **DMZ (Zona Desmilitarizada):** Expone servicios al exterior (Nginx, DNS). |
+| `insrv_net`   | `192.168.5.0/24`  | **DMZ (Zona Desmilitarizada):** Expone servicios al exterior (Nginx, DNS, Portal Web). |
 | `insrv_local` | `192.168.51.0/24` | **LAN (Red Interna):** Aloja servicios críticos (LDAP, BBDD, Redmine, Mail). |
 
 ### 📐 Esquema de Arquitectura
 
 ```mermaid
-
 graph TD
-
     subgraph Internet
-        User[Usuario Externo]
+        User[("Usuario")]
     end
 
     subgraph "DMZ - insrv_net (192.168.5.0/24)"
         direction LR
         dns_dmz["DNS<br>insrv5.net"]
         nginx_dmz["Nginx Reverse Proxy<br>192.168.5.10"]
-        apache_dmz["Apache<br>192.168.5.2"]
+        apache_dmz["Apache<br>192.168.5.2<br>(Portal de Empleados)"]
     end
 
     subgraph "LAN - insrv_local (192.168.51.0/24)"
         direction TB
-        nginx_lan["Nginx Reverse Proxy<br>192.168.51.100"]
-        subgraph "Servicios Internos"
+        nginx_lan["Nginx Auth Gateway<br>192.168.51.100"]
+        subgraph "Servicios Internos (Protegidos)"
             direction LR
             redmine["Redmine<br>tareas.insrv5.local"]
             phpmyadmin["phpMyAdmin<br>pma.insrv5.local"]
@@ -67,23 +66,24 @@ graph TD
     end
 
     subgraph "Acceso Remoto (VPN)"
-        worker[Trabajador Remoto]
-        vpn[VPN OpenVPN/WireGuard - Proximamente]
+        worker["Trabajador Remoto"]
+        vpn[VPN OpenVPN/WireGuard]
     end
 
     %% --- Flujos de Red ---
-    User -- HTTPS (insrv5.net) --> nginx_dmz
+    User -- 1. HTTPS (insrv5.net/users) --> nginx_dmz
     User -- DNS Query --> dns_dmz
-    nginx_dmz -- Reverse Proxy --> apache_dmz
-    
-    nginx_dmz -- Acceso a LAN --> nginx_lan
+    nginx_dmz -- 2. Proxy Pass --> apache_dmz
+    apache_dmz -- 3. Auth LDAP --> openldap
 
-    nginx_lan -- Proxy Pass --> redmine
+    %% --- Flujo de Acceso Interno con SSO ---
+    User -- "4. Acceso a<br>tareas.insrv5.local" --> nginx_lan
+    nginx_lan -- "5. Auth Request<br>(Verifica sesión y rol)" --> apache_dmz
+    apache_dmz -- "6. Responde OK (200)" --> nginx_lan
+    nginx_lan -- "7. Proxy Pass al servicio" --> redmine
+    
     nginx_lan -- Proxy Pass --> phpmyadmin
     nginx_lan -- Proxy Pass --> phpldapadmin
-
-    apache_dmz -- Auth/DB --> openldap
-    apache_dmz -- Auth/DB --> mysql
 
     redmine -- Almacenamiento --> mysql
     mailserver -- Cuentas de correo --> openldap
@@ -94,6 +94,9 @@ graph TD
     vpn -- Acceso directo a LAN --> openldap
     vpn -- Acceso directo a LAN --> nginx_lan
 
+    %% --- Estilos ---
+    style User fill:#f9f,stroke:#333,stroke-width:2px
+    style worker fill:#ccf,stroke:#333,stroke-width:2px
 ```
 
 ---
@@ -107,8 +110,8 @@ graph TD
 | **phpldapadmin**| `osixia/phpldapadmin`         | `192.168.51.4`   | -               | Interfaz web para gestionar OpenLDAP. Acceso interno vía Nginx (`ldapadmin.insrv5.local`). |
 | **db**         | `mysql`                       | `192.168.51.250` | -               | Base de datos MySQL para aplicaciones como Redmine.                               |
 | **phpmyadmin** | `phpmyadmin`                  | `192.168.51.3`   | -               | Interfaz web para administrar MySQL. Acceso interno vía Nginx (`pma.insrv5.local`). |
-| **nginx**      | `nginx`                       | `192.168.51.100` | `192.168.5.10`  | **Reverse Proxy**. Dirige el tráfico de `insrv5.net` a Apache y expone servicios internos (`tareas.insrv5.local`). |
-| **apache**     | (Build local)                 | `192.168.51.2`   | `192.168.5.2`   | Servidor web para aplicaciones PHP legacy o portales simples.                     |
+| **nginx**      | `nginx`                       | `192.168.51.100` | `192.168.5.10`  | **Reverse Proxy y Gateway de Autenticación**. Dirige el tráfico público, gestiona SSL y protege los servicios internos aplicando políticas de autenticación y RBAC. |
+| **apache**     | (Build local)                 | `192.168.51.2`   | `192.168.5.2`   | **Servidor de aplicaciones para el Portal de Empleados**. Gestiona el login, dashboard, SSO y las comprobaciones de autorización (`auth_request`). |
 | **mailserver** | `mailserver/docker-mailserver`| `192.168.51.25`  | -               | Servidor de correo completo (IMAP/SMTP) integrado con OpenLDAP para cuentas.      |
 | **redmine**    | `redmine`                     | `192.168.51.10`  | -               | Plataforma de gestión de proyectos y tareas. Acceso vía Nginx (`tareas.insrv5.local`). |
 
@@ -116,32 +119,36 @@ graph TD
 
 ## 🔐 Flujo de Funcionamiento y Seguridad
 
-### Acceso de Usuarios Externos (`insrv5.net`)
+### Flujo de Autenticación y Single Sign-On (SSO)
 
-1. Un usuario accede a `https://insrv5.net`.
-2. El DNS público (`192.168.5.253`) resuelve el dominio a la IP del Nginx en la DMZ (`192.168.5.10`).
-3. Nginx recibe la petición y, actuando como **reverse proxy**, la redirige al contenedor de Apache (`192.168.5.2`).
-4. Apache procesa la lógica de la aplicación, que puede contactar con servicios de la LAN (como LDAP o MySQL) a través de sus IPs internas si es necesario.
+1. Un usuario accede a `https://insrv5.net` y es dirigido al portal de empleados (`/users/index.php`).
+2. Nginx en la DMZ (`192.168.5.10`) redirige la petición al contenedor de Apache (`192.168.5.2`).
+3. El portal de Apache valida las credenciales del usuario contra el servidor OpenLDAP (`192.168.51.252`) de forma segura usando LDAPS.
+4. Si la autenticación es correcta, se crea una sesión para el dominio `.insrv5.local` y se redirige al usuario al **dashboard de empleado**.
+5. Desde el dashboard, el usuario puede hacer clic para acceder a servicios como `tareas.insrv5.local`. El sistema de SSO utiliza la sesión ya creada para darle acceso sin volver a pedirle credenciales.
 
-### Acceso Remoto y Servicios Internos (`insrv5.local`)
+### Acceso a Servicios Internos con RBAC
 
-1. El acceso a herramientas de gestión (`pma.insrv5.local`, `ldapadmin.insrv5.local`) y a la plataforma de tareas (`tareas.insrv5.local`) está restringido a la red interna.
-2. Nginx (`192.168.51.100`) actúa como reverse proxy interno, protegiendo y centralizando el acceso a estos servicios.
-3. **El acceso remoto para los trabajadores se realizará a través de una VPN**, que conectará al usuario de forma segura a la red `insrv_local`.
+1. Cuando un usuario intenta acceder a un servicio interno (ej. `https://pma.insrv5.local`), la petición es interceptada por el **Nginx Auth Gateway** en la LAN (`192.168.51.100`).
+2. Nginx congela la petición y realiza una `auth_request` interna al portal de Apache, preguntando: *"¿Tiene este usuario (identificado por su cookie de sesión) el rol necesario (ej. 'IT') para acceder a este recurso?"*
+3. Apache verifica la sesión y el rol del usuario (almacenado en la sesión tras el login) y responde a Nginx con un código `200 OK` (si está autorizado) o `403 Forbidden` (si no).
+4. Si la respuesta es `200`, Nginx permite el acceso y redirige la petición al servicio final (phpMyAdmin). Si es `403`, muestra una página de acceso denegado.
 
 ### Medidas de Seguridad
 
 - **Segmentación de red (DMZ/LAN):** Los servicios críticos no tienen exposición directa a Internet.
 - **Reverse Proxy (Nginx):** Actúa como único punto de entrada, ocultando la topología de la red interna y centralizando la gestión de SSL.
+- **Control de Acceso Basado en Roles (RBAC):** Nginx, en combinación con el portal de empleados, protege cada servicio interno, asegurando que solo usuarios con los privilegios adecuados puedan acceder.
+- **Single Sign-On (SSO):** Mejora la experiencia de usuario y la seguridad al centralizar el punto de login.
 - **Comunicación cifrada:** Se utilizan certificados SSL/TLS para el acceso web (HTTPS) y para los servicios LDAP (LDAPS).
-- **Acceso restringido por IP:** Las configuraciones de Nginx para los servicios internos (`insrv5.local.conf`) solo permiten el acceso desde las subredes autorizadas (`192.168.5.0/24`, `192.168.51.0/24`) y la futura VPN.
+- **Acceso restringido por IP:** Las configuraciones de Nginx y el dashboard verifican si el usuario proviene de una red interna o VPN, limitando el acceso a recursos sensibles.
 - **Autenticación Centralizada:** OpenLDAP gestiona todos los usuarios y grupos, evitando credenciales dispersas.
 
 ---
 
 ## 🔮 Próximos Pasos (Roadmap)
 
-- [ ] **Integración de VPN:** Desplegar un contenedor (ej. `openvpn` o `wireguard`) para permitir el acceso remoto seguro a la red `insrv_local` desde cualquier lugar.
+- [ ] **Integración de VPN:** Desplegar un contenedor (ej. `wireguard`) para permitir el acceso remoto seguro a la red `insrv_local`.
 - [ ] **Sistema de Backups:** Implementar un servicio de copias de seguridad automáticas para la base de datos MySQL y los datos de OpenLDAP.
 - [ ] **Monitorización y Logs:** Centralizar los logs de todos los contenedores y desplegar herramientas de monitorización (como Prometheus/Grafana).
-- [ ] **Desarrollo de la aplicación PHP:** Finalizar la aplicación de gestión que se ejecuta en Apache.
+- [x] **Desarrollo de la aplicación PHP:** Finalizada la aplicación de autenticación, SSO y portal de empleados.

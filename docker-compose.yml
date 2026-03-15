@@ -35,8 +35,10 @@ services:
       - LDAP_TLS_CA_CRT_FILENAME=insrv5.local.crt
     volumes:
       - ldap_data:/var/lib/ldap
+      - ldap_config:/etc/ldap/slapd.d
       - ./conf/ssl/certs:/container/service/slapd/assets/certs/
-      - ./conf/ldap/init.ldif:/container/service/slapd/assets/config/bootstrap/ldif/custom/init.ldif
+      - ./conf/ldap/01-init.ldif:/container/service/slapd/assets/config/bootstrap/ldif/custom/01-init.ldif
+      - ./conf/ldap/02-acl.sh:/container/service/slapd/assets/config/bootstrap/ldif/custom/02-acl.sh
     depends_on:
       - dns
     dns:
@@ -59,7 +61,7 @@ services:
         ipv4_address: 192.168.51.4
 
   db:
-    image: mysql:latest
+    image: mysql
     container_name: db
     environment:
       - MYSQL_ROOT_PASSWORD=root # Esto en prod. debería ir en un .env
@@ -69,7 +71,7 @@ services:
     volumes:
       - db_data:/var/lib/mysql
       - ./log/mysql:/var/log/mysql
-      - ./conf/mysql/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+      - ./conf/db/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
     networks:
       insrv_local:
         ipv4_address: 192.168.51.250
@@ -94,6 +96,9 @@ services:
       - ./conf/nginx:/etc/nginx/conf.d:ro
       - ./conf/ssl/certs:/etc/ssl/certs:ro
       - ./log/nginx:/var/log/nginx
+    ports:
+      - "80:80"    
+      - "443:443"  
     networks:
       insrv_net:
         ipv4_address: 192.168.5.10
@@ -104,15 +109,20 @@ services:
     build:
       context: ./Docker/apache
     container_name: apache
+    environment:
+      - LDAPTLS_REQCERT=never
     volumes:
       - ./conf/www:/var/www/html/
       - ./log/apache:/var/log/apache2
+    dns:
+      - 192.168.51.253
     networks:
-      insrv_net:
-        ipv4_address: 192.168.5.2
       insrv_local:
         ipv4_address: 192.168.51.2
+      insrv_net:
+        ipv4_address: 192.168.5.2
     depends_on:
+      - dns
       - db
       - openldap
 
@@ -164,7 +174,7 @@ services:
   # Redmine
   # INTEGRACIÓN REDMINE (Gestor de Tareas y Control de Horas)
   redmine:
-    image: redmine:latest
+    image: redmine:trixie
     container_name: redmine
     hostname: tareas.insrv5.local
     environment:
@@ -186,6 +196,7 @@ services:
 volumes:
   db_data:
   ldap_data:
+  ldap_config:
 
 networks:
   insrv_net:
