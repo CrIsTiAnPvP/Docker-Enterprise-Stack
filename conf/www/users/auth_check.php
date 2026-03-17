@@ -7,9 +7,11 @@ if (!isset($_SESSION['user']) || !isset($_SESSION['rol'])) {
     exit();
 }
 
-$rol_exigido = isset($_GET['req_role']) ? $_GET['req_role'] : 'IT';
+$rol_exigido_str = isset($_GET['req_role']) ? $_GET['req_role'] : 'IT';
+$roles_permitidos = explode(',', $rol_exigido_str); 
+$rol_usuario = $_SESSION['rol'];
 
-if ($_SESSION['rol'] === $rol_exigido || $_SESSION['rol'] === 'IT') {
+if (in_array('Trabajador', $roles_permitidos) || $rol_usuario === 'IT' || in_array($rol_usuario, $roles_permitidos)) {
     http_response_code(200);
     exit();
 } else {

@@ -14,9 +14,10 @@ objectClass: inetOrgPerson
 objectClass: posixAccount
 objectClass: top
 uid: calonso
-cn: Cristian Alonso
-sn: Alonso
-mail: calonso@insrv5.local
+givenName: Cristian
+sn: Alonso Contreras
+cn: Cristian Alonso Contreras
+mail: calonso@insrv5.net
 userPassword: password123
 uidNumber: 1000
 gidNumber: 1000
@@ -28,9 +29,10 @@ objectClass: inetOrgPerson
 objectClass: posixAccount
 objectClass: top
 uid: jperez
-cn: Juan Pérez
+givenName: Juan
 sn: Pérez
-mail: jperez@insrv5.local
+cn: Juan Pérez
+mail: jperez@insrv5.net
 userPassword: password123
 uidNumber: 1001
 gidNumber: 1001
@@ -42,9 +44,10 @@ objectClass: inetOrgPerson
 objectClass: posixAccount
 objectClass: top
 uid: llopez
-cn: Laura López
+givenName: Laura
 sn: López
-mail: llopez@insrv5.local
+cn: Laura López
+mail: llopez@insrv5.net
 userPassword: password123
 uidNumber: 1002
 gidNumber: 1002
@@ -56,9 +59,10 @@ objectClass: inetOrgPerson
 objectClass: posixAccount
 objectClass: top
 uid: cgomez
-cn: Carlos Gómez
+givenName: Carlos
 sn: Gómez
-mail: cgomez@insrv5.local
+cn: Carlos Gómez
+mail: cgomez@insrv5.net
 userPassword: password123
 uidNumber: 1003
 gidNumber: 1003
@@ -72,20 +76,12 @@ objectClass: top
 uid: mgarcia
 cn: María García
 sn: García
-mail: mgarcia@insrv5.local
+givenName: María
+mail: mgarcia@insrv5.net
 userPassword: password123
 uidNumber: 1004
 gidNumber: 1004
 homeDirectory: /home/mgarcia
-
-# --- CUENTA DE SERVICIO PARA LA APLICACIÓN WEB ---
-dn: uid=visor-usuarios,ou=usuarios,dc=insrv5,dc=local
-objectClass: inetOrgPerson
-objectClass: top
-cn: Visor Usuarios
-sn: Sistema
-uid: visor-usuarios
-userPassword: visorpwd
 
 # --- 3. Crear Grupos y Asignar Usuarios (Un usuario, un grupo) ---
 dn: cn=Administracion,ou=grupos,dc=insrv5,dc=local
