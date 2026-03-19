@@ -9,7 +9,7 @@ if (isset($_SESSION['user']) && isset($_SESSION['rol'])) {
         $sso_token = session_id();
         $return_url = $_GET['return'];
         $parsed_url = parse_url($return_url);
-        $sso_jump = $parsed_url['scheme'] . "://" . $parsed_url['host'] . "/sso.php?token=" . $sso_token . "&target=" . urlencode($return_url);
+        $sso_jump = $parsed_url['scheme'] . "://" . $parsed_url['host'] . "/sso?token=" . $sso_token . "&target=" . urlencode($return_url);
         header("Location: " . $sso_jump);
         exit();
     }

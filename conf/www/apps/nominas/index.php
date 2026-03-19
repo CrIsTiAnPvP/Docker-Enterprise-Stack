@@ -145,7 +145,7 @@ $mes_actual_texto = $meses_es[date('m')] . ' ' . date('Y');
                         </div>
                         <div class="flex flex-col">
                             <span class="text-sm font-semibold leading-none text-slate-700"><?php echo htmlspecialchars($display_name); ?></span>
-                            <span class="text-xs text-slate-500 mt-1"><?php echo htmlspecialchars($raw_user); ?>@insrv5.net</span>
+                            <span class="text-xs text-slate-500 mt-1"><?php echo htmlspecialchars($usuario_activo_uid); ?>@insrv5.net</span>
                         </div>
                         <span class="ml-2 px-2.5 py-0.5 rounded-full text-xs font-bold border <?php echo $badge_class; ?>">
                             <?php echo htmlspecialchars($rol); ?>

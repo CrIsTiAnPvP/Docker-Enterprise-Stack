@@ -34,15 +34,17 @@ if ($metodo === 'POST') {
     $icono = trim($_POST['icono'] ?? '');
     $color = trim($_POST['color'] ?? 'bg-blue-50 text-blue-600');
     $roles = isset($_POST['roles']) ? implode(',', $_POST['roles']) : 'Todos';
+    $requiere_vpn = isset($_POST['requiere_vpn']) ? 1 : 0;
+    
     $creador = $_SESSION['user_cn'] ?? 'IT Admin';
 
     if ($nombre && $url && $icono) {
         if ($id > 0) {
-            $stmt = $pdo->prepare("UPDATE dashboard_apps SET nombre = ?, descripcion = ?, url = ?, icono_svg = ?, color_fondo = ?, roles_permitidos = ? WHERE id = ?");
-            $stmt->execute([$nombre, $descripcion, $url, $icono, $color, $roles, $id]);
+            $stmt = $pdo->prepare("UPDATE dashboard_apps SET nombre = ?, descripcion = ?, url = ?, icono_svg = ?, color_fondo = ?, roles_permitidos = ?, requiere_vpn = ? WHERE id = ?");
+            $stmt->execute([$nombre, $descripcion, $url, $icono, $color, $roles, $requiere_vpn, $id]);
         } else {
-            $stmt = $pdo->prepare("INSERT INTO dashboard_apps (nombre, descripcion, url, icono_svg, color_fondo, roles_permitidos, creado_por) VALUES (?, ?, ?, ?, ?, ?, ?)");
-            $stmt->execute([$nombre, $descripcion, $url, $icono, $color, $roles, $creador]);
+            $stmt = $pdo->prepare("INSERT INTO dashboard_apps (nombre, descripcion, url, icono_svg, color_fondo, roles_permitidos, requiere_vpn, creado_por) VALUES (?, ?, ?, ?, ?, ?, ?, ?)");
+            $stmt->execute([$nombre, $descripcion, $url, $icono, $color, $roles, $requiere_vpn, $creador]);
         }
         echo json_encode(['success' => true]);
     } else {
