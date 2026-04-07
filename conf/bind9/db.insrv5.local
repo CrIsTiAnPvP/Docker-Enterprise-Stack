@@ -20,6 +20,9 @@ mysql   IN      A       192.168.51.250
 ; Paneles Internos
 pma 		  IN      A       192.168.51.3  
 ldapadmin IN      A       192.168.51.4
+tareas    IN      A       192.168.51.100
+nominas   IN      A       192.168.51.100
+recursos  IN      A       192.168.51.100
 
 ; Correo interno
 @       IN      MX      10 mail.insrv5.local.

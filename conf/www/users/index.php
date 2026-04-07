@@ -2,12 +2,14 @@
 session_set_cookie_params(['domain' => '.insrv5.local']);
 session_start();
 
+putenv('LDAPTLS_REQCERT=never');
+
 if (isset($_SESSION['user']) && isset($_SESSION['rol'])) {
     if (isset($_GET['return'])) {
         $sso_token = session_id();
         $return_url = $_GET['return'];
         $parsed_url = parse_url($return_url);
-        $sso_jump = $parsed_url['scheme'] . "://" . $parsed_url['host'] . "/sso.php?token=" . $sso_token . "&target=" . urlencode($return_url);
+        $sso_jump = $parsed_url['scheme'] . "://" . $parsed_url['host'] . "/sso?token=" . $sso_token . "&target=" . urlencode($return_url);
         header("Location: " . $sso_jump);
         exit();
     }
@@ -18,7 +20,7 @@ if (isset($_SESSION['user']) && isset($_SESSION['rol'])) {
 $ldap_server = "ldaps://openldap.insrv5.local:636";
 $ldap_base_dn = "dc=insrv5,dc=local"; 
 
-$ldap_service_dn = "uid=visor-usuarios,ou=usuarios,dc=insrv5,dc=local";
+$ldap_service_dn = "cn=visor-usuarios,dc=insrv5,dc=local";
 $ldap_service_pwd = "visorpwd";
 
 $msg = "";
@@ -41,7 +43,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $bind_service = @ldap_bind($ldap_conn, $ldap_service_dn, $ldap_service_pwd);
 
         if ($bind_service) {
-            $search_filter = "(uid=$uid_to_search)"; 
+            $search_filter = "(|(uid=$uid_to_search)(mail=$login_input))";
             $result = @ldap_search($ldap_conn, $ldap_base_dn, $search_filter);
             
             if ($result) {
@@ -50,9 +52,11 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 if ($entries["count"] > 0) {
                     $user_real_dn = $entries[0]["dn"];
                     $user_uid = $entries[0]["uid"][0];
+                    $user_cn = $entries[0]["cn"][0];
 
                     if (@ldap_bind($ldap_conn, $user_real_dn, $pwd)) {
                         $_SESSION['user'] = $user_uid;
+                        $_SESSION['user_cn'] = $user_cn;
                         
                         @ldap_bind($ldap_conn, $ldap_service_dn, $ldap_service_pwd);
                         
@@ -100,7 +104,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 $msg = "<h3 style='color:red'>Error de búsqueda: " . ldap_error($ldap_conn) . "</h3>";
             }
         } else {
-            $msg = "<h3 style='color:red'>Error de Service Account.</h3>";
+            $msg = "<h3 style='color:red'>Error de Service Account. ". ldap_error($ldap_conn) ."</h3>";
         }
         ldap_close($ldap_conn);
     }
@@ -152,7 +156,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             <form method="POST" class="space-y-5">
                 <div>
                     <label for="user" class="block text-sm font-medium text-slate-700 mb-1">Usuario o Email</label>
-                    <input type="text" id="user" name="user" required placeholder="ej: user@insrv5.local" 
+                    <input type="text" id="user" name="user" required placeholder="ej: user@insrv5.net" 
                         class="w-full px-4 py-3 rounded-lg border border-slate-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all outline-none text-slate-700 bg-slate-50 focus:bg-white shadow-sm" />
                 </div>
                 
