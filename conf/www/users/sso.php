@@ -1,9 +1,17 @@
 <?php
-session_set_cookie_params(['domain' => '.insrv5.local']);
+$host = $_SERVER['HTTP_HOST'] ?? '';
+$cookie_domain = (strpos($host, 'insrv5.net') !== false) ? '.insrv5.net' : '.insrv5.local';
+
+session_set_cookie_params([
+    'domain' => $cookie_domain,
+    'path' => '/',
+    'secure' => true,
+    'httponly' => true,
+    'samesite' => 'Lax'
+]);
 session_start();
 
 $scheme = $_SERVER['HTTP_X_FORWARDED_PROTO'] ?? 'https';
-$host = $_SERVER['HTTP_HOST'];
 
 if (isset($_GET['target']) && !empty($_GET['target'])) {
     $target = filter_var($_GET['target'], FILTER_SANITIZE_URL);
@@ -24,10 +32,11 @@ if (isset($_GET['token']) && !empty($_GET['token'])) {
     session_id($_GET['token']);
     session_start();
     
+    // Aplicamos el dominio dinámico aquí también
     setcookie(session_name(), session_id(), [
         'expires' => time() + (86400 * 30),
         'path' => '/',
-        'domain' => '.insrv5.local',
+        'domain' => $cookie_domain,
         'secure' => true,
         'httponly' => true,
         'samesite' => 'Lax'
