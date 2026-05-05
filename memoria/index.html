@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Memoria Proyecto - Docker Enterprise Stack</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <!-- 1. PORTADA -->
+    <section class="page" id="portada">
+        <div class="cover">
+            <div>
+                <p class="ies-name">I.E.S. Zaidín-Vergeles (GRANADA)</p>
+                <!-- Imagen destacada opcional -->
+                <div style="height: 150px; display: flex; align-items: center; justify-content: center; border: 1px dashed #ccc; margin-bottom: 20px;">
+                    [IMAGEN DESTACADA DEL PROYECTO]
+                </div>
+                <h1>Infraestructura de Servicios IT con Docker</h1>
+            </div>
+            
+            <div class="details">
+                <p><strong>Alumno:</strong> [TU NOMBRE Y APELLIDOS]</p>
+                <p><strong>Especialidad:</strong> 2º Administración de Sistemas Informáticos en Red (ASIR)</p>
+                <p><strong>Curso Académico:</strong> 2025/2026</p>
+                <p><strong>Fecha de presentación:</strong> 5 de mayo de 2026</p>
+                <p><strong>Tutor del Proyecto:</strong> [NOMBRE DEL PROFESOR TUTOR]</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- 2. ÍNDICE PAGINADO -->
+    <section class="page" id="indice">
+        <div class="page-header"><span>Infraestructura IT Docker</span><span>Página 2</span></div>
+        <h2>Índice</h2>
+        <nav>
+            <ul class="index-list">
+                <li>1. <a href="#portada">Portada</a></li>
+                <li>2. <a href="#indice">Índice</a></li>
+                <li>3. <a href="#definicion">Definición del Proyecto</a></li>
+                <li>4. <a href="#keywords">Palabras claves (tags)</a></li>
+                <li>5. <a href="#desarrollo">Desarrollo del Proyecto</a>
+                    <ul>
+                        <li><a href="#arquitectura">Arquitectura de Red</a></li>
+                        <li><a href="#servicios">Descripción de Servicios</a></li>
+                        <li><a href="#seguridad">Flujo de Funcionamiento y Seguridad</a></li>
+                    </ul>
+                </li>
+                <li>6. <a href="#conclusiones">Conclusiones</a></li>
+                <li>7. <a href="#recursos">Recursos bibliográficos</a></li>
+                <li>8. <a href="#anexos">Anexos</a></li>
+                <li>9. <a href="#contraportada">Contraportada</a></li>
+            </ul>
+        </nav>
+        <div class="page-footer">Página 2</div>
+    </section>
+
+    <!-- 3. DEFINICIÓN DEL PROYECTO -->
+    <section class="page" id="definicion">
+        <div class="page-header"><span>Infraestructura IT Docker</span><span>Página 3</span></div>
+        <h2>Definición del Proyecto</h2>
+        <h3>Resumen (Abstract)</h3>
+        <p>Este proyecto consiste en el diseño e implementación de una infraestructura de servicios IT empresarial completa utilizando contenedores Docker. La arquitectura simula un entorno corporativo real segmentado en redes DMZ y LAN, integrando servicios de autenticación centralizada (LDAP), bases de datos, correo electrónico, gestión de proyectos y un portal de empleados dinámico con Single Sign-On (SSO).</p>
+        
+        <h3>Objetivos</h3>
+        <ul>
+            <li>Desplegar una arquitectura de red segura mediante segmentación (DMZ/LAN).</li>
+            <li>Centralizar la gestión de usuarios y roles mediante OpenLDAP.</li>
+            <li>Implementar un sistema de acceso único (SSO) para aplicaciones internas.</li>
+            <li>Garantizar la alta disponibilidad y modularidad de los servicios mediante Docker Compose.</li>
+        </ul>
+
+        <h3>Justificación</h3>
+        <p>En el panorama tecnológico actual, la contenerización permite a las empresas desplegar servicios de forma rápida y reproducible. Este proyecto demuestra la viabilidad de gestionar una infraestructura compleja con recursos mínimos, garantizando la seguridad mediante un reverse proxy (Nginx) y control de acceso basado en roles (RBAC).</p>
+        
+        <a href="#indice" class="back-to-index">Volver al índice</a>
+        <div class="page-footer">Página 3</div>
+    </section>
+
+    <!-- 4. PALABRAS CLAVES -->
+    <section class="page" id="keywords">
+        <div class="page-header"><span>Infraestructura IT Docker</span><span>Página 4</span></div>
+        <h2>Palabras claves (tags)</h2>
+        <p style="font-size: 14pt; margin-top: 2em;">
+            <strong>docker, infraestuctura-ti, ldap, sso, nginx, ciberseguridad</strong>
+        </p>
+        
+        <a href="#indice" class="back-to-index">Volver al índice</a>
+        <div class="page-footer">Página 4</div>
+    </section>
+
+    <!-- 5. DESARROLLO DEL PROYECTO -->
+    <section class="page" id="desarrollo">
+        <div class="page-header"><span>Infraestructura IT Docker</span><span>Página 5</span></div>
+        <h2>Desarrollo del Proyecto</h2>
+        
+        <h3 id="arquitectura">Arquitectura de Red</h3>
+        <p>La infraestructura se divide en dos redes virtuales aisladas:</p>
+        <table>
+            <thead>
+                <tr>
+                    <th>Red</th>
+                    <th>Subred</th>
+                    <th>Propósito</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>insrv_net</td>
+                    <td>192.168.5.0/24</td>
+                    <td>DMZ: Servicios públicos (Nginx, DNS, Portal).</td>
+                </tr>
+                <tr>
+                    <td>insrv_local</td>
+                    <td>192.168.51.0/24</td>
+                    <td>LAN: Servicios críticos (LDAP, BBDD, Mail).</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <h3 id="servicios">Descripción de Servicios</h3>
+        <p>El stack tecnológico se basa en las siguientes imágenes oficiales:</p>
+        <ul>
+            <li><strong>OpenLDAP:</strong> Motor de autenticación centralizada.</li>
+            <li><strong>Nginx:</strong> Gateway de autenticación y Reverse Proxy con soporte SSL/TLS.</li>
+            <li><strong>Apache (PHP):</strong> Portal de gestión dinámico que interactúa con LDAP y MySQL.</li>
+            <li><strong>Docker-Mailserver:</strong> Servidor de correo integrado con el directorio activo.</li>
+            <li><strong>Redmine:</strong> Gestor de proyectos y tareas empresariales.</li>
+            <li><strong>Monitoring (Prometheus/Grafana):</strong> Observabilidad del estado de los contenedores.</li>
+        </ul>
+
+        <h3 id="seguridad">Flujo de Funcionamiento y Seguridad</h3>
+        <p>El flujo de acceso se basa en el módulo <code>auth_request</code> de Nginx. Cuando un usuario intenta acceder a un servicio LAN, Nginx delega la validación al Portal de Apache, que verifica la sesión y el rol del usuario en LDAP antes de permitir el paso del tráfico.</p>
+
+        <a href="#indice" class="back-to-index">Volver al índice</a>
+        <div class="page-footer">Página 5</div>
+    </section>
+
+    <!-- 6. CONCLUSIONES -->
+    <section class="page" id="conclusiones">
+        <div class="page-header"><span>Infraestructura IT Docker</span><span>Página 6</span></div>
+        <h2>Conclusiones</h2>
+        <p>La realización de este proyecto ha permitido profundizar en la orquestación de contenedores y en la integración de protocolos de seguridad como LDAPS y HTTPS. Se ha logrado crear un entorno funcional donde la experiencia de usuario mejora gracias al SSO, sin comprometer la seguridad de los datos críticos almacenados en la LAN.</p>
+        <p>Como aprendizaje clave, destaca la importancia de una correcta segmentación de red para prevenir ataques laterales y la potencia de Docker para prototipar infraestructuras complejas.</p>
+        
+        <a href="#indice" class="back-to-index">Volver al índice</a>
+        <div class="page-footer">Página 6</div>
+    </section>
+
+    <!-- 7. RECURSOS BIBLIOGRÁFICOS -->
+    <section class="page" id="recursos">
+        <div class="page-header"><span>Infraestructura IT Docker</span><span>Página 7</span></div>
+        <h2>Recursos bibliográficos</h2>
+        <ul>
+            <li>Docker Documentation. (Consultado el 05/05/2026). <a href="https://docs.docker.com">https://docs.docker.com</a></li>
+            <li>OpenLDAP Software Manual. (Consultado el 05/05/2026). <a href="https://www.openldap.org/doc/">https://www.openldap.org/doc/</a></li>
+            <li>Nginx Auth Request Module Documentation. (Consultado el 05/05/2026). <a href="http://nginx.org/en/docs/http/ngx_http_auth_request_module.html">http://nginx.org/en/docs/http/ngx_http_auth_request_module.html</a></li>
+        </ul>
+        
+        <a href="#indice" class="back-to-index">Volver al índice</a>
+        <div class="page-footer">Página 7</div>
+    </section>
+
+    <!-- 8. ANEXOS -->
+    <section class="page" id="anexos">
+        <div class="page-header"><span>Infraestructura IT Docker</span><span>Página 8</span></div>
+        <h2>Anexos</h2>
+        <h3>Anexo I: Archivo docker-compose.yml</h3>
+        <p>Debido a su extensión, el archivo de orquestación se adjunta en formato digital como <code>docker-compose.yml</code>.</p>
+        
+        <h3>Anexo II: Esquema de red (Mermaid)</h3>
+        <p>[Aquí se incluiría el diagrama de arquitectura exportado como imagen PNG/JPEG]</p>
+
+        <a href="#indice" class="back-to-index">Volver al índice</a>
+        <div class="page-footer">Página 8</div>
+    </section>
+
+    <!-- 9. CONTRAPORTADA -->
+    <section class="page" id="contraportada">
+        <div class="cover">
+            <div></div> <!-- Espacio superior -->
+            <div class="details">
+                <h2>Contacto</h2>
+                <p><strong>Email:</strong> [TU EMAIL]</p>
+                <p><strong>GitHub/Web:</strong> [TU ENLACE]</p>
+                <p><strong>Redes Sociales:</strong> [TUS REDES]</p>
+            </div>
+            <div>
+                <p>IES Zaidín-Vergeles - Granada</p>
+                <p>2026</p>
+            </div>
+        </div>
+    </section>
+
+</body>
+</html>

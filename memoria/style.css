@@ -1,0 +1,142 @@
+/* I.E.S. Zaidín-Vergeles Project Style Guide */
+@page {
+    size: A4;
+    margin: 2.5cm;
+}
+
+:root {
+    --base-font-size: 12pt;
+    --font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+body {
+    font-family: var(--font-family);
+    font-size: var(--base-font-size);
+    line-height: 1.6;
+    margin: 0;
+    padding: 0;
+    color: #333;
+    background-color: #f4f4f4;
+}
+
+/* Page Layout */
+.page {
+    width: 210mm;
+    min-height: 297mm;
+    padding: 2.5cm;
+    margin: 1cm auto;
+    background: white;
+    box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    box-sizing: border-box;
+    position: relative;
+    page-break-after: always;
+}
+
+/* Header & Footer */
+.page-header {
+    position: absolute;
+    top: 1cm;
+    left: 2.5cm;
+    right: 2.5cm;
+    border-bottom: 0.5pt solid #666;
+    font-size: 10pt;
+    color: #666;
+    display: flex;
+    justify-content: space-between;
+}
+
+.page-footer {
+    position: absolute;
+    bottom: 1cm;
+    left: 2.5cm;
+    right: 2.5cm;
+    text-align: center;
+    font-size: 10pt;
+    color: #666;
+}
+
+/* Section Numbering */
+body { counter-reset: section; }
+h2 { counter-reset: subsection; margin-top: 1.5em; }
+h3 { counter-reset: subsubsection; margin-top: 1.2em; }
+
+h2::before {
+    counter-increment: section;
+    content: counter(section) ". ";
+}
+
+h3::before {
+    counter-increment: subsection;
+    content: counter(section) "." counter(subsection) ". ";
+}
+
+/* Navigation */
+.back-to-index {
+    display: block;
+    text-align: right;
+    font-size: 9pt;
+    color: #0066cc;
+    text-decoration: none;
+    margin-top: 2em;
+    border-top: 1px solid #eee;
+    padding-top: 5px;
+}
+
+.back-to-index:hover { text-decoration: underline; }
+
+/* Cover Page */
+.cover {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    height: 100%;
+    text-align: center;
+}
+
+.cover h1 { font-size: 26pt; margin: 1em 0; }
+.cover .details { font-size: 14pt; line-height: 2; margin-top: 2em; }
+.cover .ies-name { font-weight: bold; margin-bottom: 2em; font-size: 16pt; }
+
+/* Index Styles */
+.index-list { list-style: none; padding: 0; }
+.index-list li { margin: 0.5em 0; font-size: 13pt; }
+.index-list ul { list-style: none; padding-left: 20px; }
+.index-list ul li { font-size: 11pt; }
+.index-list a { text-decoration: none; color: black; }
+.index-list a:hover { color: #0066cc; }
+
+/* Image Styling */
+img {
+    max-width: 100%;
+    height: auto;
+    display: block;
+    margin: 1em auto;
+    border: 1px solid #ddd;
+    padding: 5px;
+}
+
+/* Table Styling */
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 1em 0;
+}
+
+th, td {
+    border: 1px solid #ddd;
+    padding: 8px;
+    text-align: left;
+}
+
+th { background-color: #f8f8f8; }
+
+@media print {
+    body { background: none; }
+    .page { 
+        margin: 0; 
+        box-shadow: none; 
+        width: 100%;
+        page-break-after: always;
+    }
+    .back-to-index { display: none; }
+}

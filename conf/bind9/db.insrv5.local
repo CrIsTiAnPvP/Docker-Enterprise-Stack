@@ -23,6 +23,9 @@ ldapadmin IN      A       192.168.51.4
 tareas    IN      A       192.168.51.100
 nominas   IN      A       192.168.51.100
 recursos  IN      A       192.168.51.100
+prometheus IN      A       192.168.51.100
+cadvisor   IN      A       192.168.51.100
+grafana    IN      A       192.168.51.100
 
 ; Correo interno
 @       IN      MX      10 mail.insrv5.local.

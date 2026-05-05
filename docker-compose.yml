@@ -198,10 +198,67 @@ services:
       - db
       - openldap
 
+  # --- MONITORING STACK ---
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: prometheus
+    volumes:
+      - ./conf/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
+      - prometheus_data:/prometheus
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+      - '--web.console.libraries=/usr/share/prometheus/console_libraries'
+      - '--web.console.templates=/usr/share/prometheus/consoles'
+    networks:
+      insrv_local:
+        ipv4_address: 192.168.51.40
+    dns:
+      - 192.168.51.253
+    depends_on:
+      - dns
+
+  cadvisor:
+    image: gcr.io/cadvisor/cadvisor:latest
+    container_name: cadvisor
+    volumes:
+      - /:/rootfs:ro
+      - /var/run:/var/run:rw
+      - /sys:/sys:ro
+      - /var/lib/docker/:/var/lib/docker:ro
+    networks:
+      insrv_local:
+        ipv4_address: 192.168.51.41
+    dns:
+      - 192.168.51.253
+    depends_on:
+      - dns
+
+  grafana:
+    image: grafana/grafana:latest
+    container_name: grafana
+    environment:
+      - GF_SERVER_DOMAIN=grafana.insrv5.local
+      - GF_SERVER_ROOT_URL=https://grafana.insrv5.local
+      - GF_SECURITY_ADMIN_PASSWORD=admin # Cambiar en primer inicio
+      - TZ=Europe/Madrid
+    volumes:
+      - grafana_data:/var/lib/grafana
+    networks:
+      insrv_local:
+        ipv4_address: 192.168.51.42
+    dns:
+      - 192.168.51.253
+    depends_on:
+      - dns
+      - prometheus
+
 volumes:
   db_data:
   ldap_data:
   ldap_config:
+  prometheus_data:
+  grafana_data:
 
 networks:
   insrv_net:
