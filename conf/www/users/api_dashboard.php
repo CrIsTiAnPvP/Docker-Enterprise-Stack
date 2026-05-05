@@ -1,6 +1,15 @@
 <?php
-session_set_cookie_params(['domain' => '.insrv5.local']);
+$host = $_SERVER['HTTP_HOST'] ?? '';
+$cookie_domain = (strpos($host, 'insrv5.net') !== false) ? '.insrv5.net' : '.insrv5.local';
+session_set_cookie_params([
+    'domain' => $cookie_domain,
+    'path' => '/',
+    'secure' => true,
+    'httponly' => true,
+    'samesite' => 'Lax'
+]);
 session_start();
+
 error_reporting(0);
 header('Content-Type: application/json');
 
