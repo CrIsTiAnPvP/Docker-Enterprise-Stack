@@ -25,6 +25,11 @@ nominas   IN      A       192.168.51.100
 recursos  IN      A       192.168.51.100
 prometheus IN      A       192.168.51.100
 cadvisor   IN      A       192.168.51.100
+node-exporter IN   A       192.168.51.100
+mysql-exporter IN  A       192.168.51.100
+ldap-exporter IN   A       192.168.51.100
+apache-exporter IN A       192.168.51.100
+nginx-exporter IN  A       192.168.51.100
 grafana    IN      A       192.168.51.100
 
 ; Correo interno

@@ -1,5 +1,10 @@
 CREATE DATABASE IF NOT EXISTS redmine_db;
 GRANT ALL PRIVILEGES ON redmine_db.* TO 'user'@'%';
+
+-- Usuario para el exportador de métricas
+CREATE USER IF NOT EXISTS 'exporter'@'%' IDENTIFIED BY '1234' WITH MAX_USER_CONNECTIONS 3;
+GRANT PROCESS, REPLICATION CLIENT, SELECT ON *.* TO 'exporter'@'%';
+
 FLUSH PRIVILEGES;
 
 USE insrv5_db;

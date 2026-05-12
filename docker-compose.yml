@@ -118,6 +118,7 @@ services:
     volumes:
       - ./conf/www:/var/www/html/
       - ./log/apache:/var/log/apache2
+      - ./conf/apache/status.conf:/etc/apache2/conf-available/status.conf:ro
     dns:
       - 192.168.51.253
     networks:
@@ -221,11 +222,16 @@ services:
   cadvisor:
     image: gcr.io/cadvisor/cadvisor:latest
     container_name: cadvisor
+    privileged: true
+    devices:
+      - /dev/kmsg
     volumes:
       - /:/rootfs:ro
-      - /var/run:/var/run:rw
+      - /var/run:/var/run:ro
       - /sys:/sys:ro
       - /var/lib/docker/:/var/lib/docker:ro
+      - /dev/disk/:/dev/disk:ro
+      - /var/run/docker.sock:/var/run/docker.sock:ro
     networks:
       insrv_local:
         ipv4_address: 192.168.51.41
@@ -233,6 +239,75 @@ services:
       - 192.168.51.253
     depends_on:
       - dns
+
+  node-exporter:
+    image: prom/node-exporter:latest
+    container_name: node-exporter
+    restart: unless-stopped
+    volumes:
+      - /proc:/host/proc:ro
+      - /sys:/host/sys:ro
+      - /:/rootfs:ro
+    command:
+      - '--path.procfs=/host/proc'
+      - '--path.rootfs=/rootfs'
+      - '--path.sysfs=/host/sys'
+      - '--collector.filesystem.mount-points-exclude=^/(sys|proc|dev|host|etc)($$|/)'
+    networks:
+      insrv_local:
+        ipv4_address: 192.168.51.43
+    dns:
+      - 192.168.51.253
+    depends_on:
+      - dns
+
+  mysql-exporter:
+    image: prom/mysqld-exporter:latest
+    container_name: mysql-exporter
+    volumes:
+      - ./conf/mysql-exporter/.my.cnf:/home/.my.cnf
+    command:
+      - '--config.my-cnf=/home/.my.cnf'
+    networks:
+      insrv_local:
+        ipv4_address: 192.168.51.44
+    depends_on:
+      - db
+
+  openldap-exporter:
+    image: renaultdigital/openldap-exporter:latest
+    container_name: ldap-exporter
+    environment:
+      - LDAP_USER=cn=admin,dc=insrv5,dc=local
+      - LDAP_PASS=admnpasswd
+      - LDAP_ADDR=ldap-server:389
+    networks:
+      insrv_local:
+        ipv4_address: 192.168.51.45
+    depends_on:
+      - openldap
+
+  apache-exporter:
+    image: lusotycoon/apache-exporter:latest
+    container_name: apache-exporter
+    command:
+      - '--scrape_uri=http://apache/server-status?auto'
+    networks:
+      insrv_local:
+        ipv4_address: 192.168.51.46
+    depends_on:
+      - apache
+
+  nginx-exporter:
+    image: nginx/nginx-prometheus-exporter:latest
+    container_name: nginx-exporter
+    command:
+      - '-nginx.scrape-uri=http://nginx:8080/stub_status'
+    networks:
+      insrv_local:
+        ipv4_address: 192.168.51.47
+    depends_on:
+      - nginx
 
   grafana:
     image: grafana/grafana:latest

@@ -7,4 +7,7 @@ RUN apt-get update && apt-get install -y \
 RUN docker-php-ext-configure ldap --with-libdir=lib/x86_64-linux-gnu/ \
     && docker-php-ext-install ldap mysqli pdo pdo_mysql
 
-RUN a2enmod rewrite
+RUN a2enmod rewrite status
+
+# Habilitar configuración de status si existe
+RUN echo "IncludeOptional conf-available/status.conf" >> /etc/apache2/apache2.conf
